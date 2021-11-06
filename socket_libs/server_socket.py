@@ -1,4 +1,5 @@
 import socket
+from lib.utils import decode_and_remove_padding, encode_and_apply_padding
 
 
 SOCKET_FAMILY = socket.AF_INET
@@ -30,12 +31,15 @@ class ServerSocket:
         return self.socket.accept()
 
     def _handle_incoming_data(self):
-        for handler_s, client_addr in self.handler_sockets:
-            while True:
-                data = handler_s.recv(1024)  # TODO: fix bug -> make non-blocking or send size first
-                print(data)
-                if not data:
-                    handler_s.send(b'We heard you loud and clear. Server handler out!')
-                    handler_s.close()
-                    break  # breaks out of for loop as well?
-                print(f'Server received {data} from client at {client_addr[0]}:{client_addr[1]}')
+        handler_s, client_addr = self.handler_sockets[0]  # Maybe not a great idea to have it as a list.
+        incoming_payload_size = 10  # TODO: Env variable.
+        actual_recv_chars = 0
+        # TODO: Infinite loop here!
+        incoming_payload_size = decode_and_remove_padding(handler_s.recv(incoming_payload_size))
+        print(f'Server received size of next message from client {client_addr[0]}:{client_addr[1]}: "{incoming_payload_size}"')
+        if incoming_payload_size:
+            handler_s.send(b'OK')  # TODO: Cleaner encoding.
+            data = handler_s.recv(incoming_payload_size).decode()
+            print(f'Server received message from client {client_addr[0]}:{client_addr[1]}: "{data}"')
+            handler_s.send(b'We heard you loud and clear. Server handler out!')  # TODO: Cleaner encoding.
+        # # handler_s.close()  # Might be problematic closing prematurely?
