@@ -1,16 +1,20 @@
+import os
 import socket
+from dotenv import load_dotenv
 from lib.utils import decode_and_remove_padding, encode_and_apply_padding
 
 
-SOCKET_FAMILY = socket.AF_INET
-SOCKET_TYPE = socket.SOCK_STREAM
-SERVER_SOCKET_PORT = 50000
+load_dotenv()
+
+SOCKET_FAMILY = eval(os.getenv('SOCKET_FAMILY'))
+SOCKET_TYPE = eval(os.getenv('SOCKET_TYPE'))
+SOCKET_PORT = int(os.getenv('SOCKET_PORT'))
 
 
 class ServerSocket:
     def __init__(self, ip_address, max_connections):
         self.ip_address = ip_address
-        self.port = SERVER_SOCKET_PORT
+        self.port = SOCKET_PORT
         self.max_connections = max_connections
         self.socket = socket.socket(SOCKET_FAMILY, SOCKET_TYPE)
         self.handler_sockets = []
@@ -20,7 +24,7 @@ class ServerSocket:
         self._handle_incoming_data()
 
     def _bind_to_host(self, ip_address):
-        self.socket.bind((ip_address, SERVER_SOCKET_PORT))
+        self.socket.bind((ip_address, self.port))
 
     def _set_max_connect_requests(self, count):
         self.socket.listen(count)
