@@ -22,21 +22,28 @@ class ClientSocket:
         self.socket.connect((ip_address, SOCKET_PORT))
 
     def _receive_confirmation(self):
-        confirmation = self.receive_data(2)
-        return True if confirmation == CONFIRMATION_CODE else False
+        confirmation = self.socket.recv(len(CONFIRMATION_CODE))
+        return True if confirmation == CONFIRMATION_CODE.encode() else False
 
-    def send_data_attempt(self, payload):  # TODO: Make data the one that says something.
-        payload = payload.encode()
-        payload_length = len(payload) + 3  # Accounts for b'' characters that will also be amended.
-        self.socket.send(encode_and_apply_padding(payload_length, PADDED_MESSAGE_SIZE))
+    def send_data_attempt(self, payload):
+        outgoing_payload_length = len(payload) + 3  # Accounts for b'' characters that will also be amended.
+        self.socket.send(encode_and_apply_padding(outgoing_payload_length, PADDED_MESSAGE_SIZE))
         confirmation = self._receive_confirmation()  # TODO: Handle error cases... dropped signal, collisions, reconfirm, etc.
         if confirmation:
-            self.socket.send(payload)
+            self.socket.send(payload.encode())
         else:
             # TODO: Handle error cases... dropped signal, collisions, reconfirm, etc.
             pass
 
-    def receive_data(self, incoming_payload_size):
-        data = self.socket.recv(incoming_payload_size).decode()  # TODO: Size has to be adjustable. Maybe parametrize or ser as env var?
-        print(f'Client received message: "{data}"')
-        return data
+    def receive_data_attempt(self):
+        data = self._receive_data()  # TODO: Try/except block + Handle error cases... dropped signal, collisions, reconfirm, etc.
+        print(f'Client received message: {data}')
+
+    def _receive_data(self):
+        incoming_payload_length = decode_and_remove_padding(self.socket.recv(PADDED_MESSAGE_SIZE))
+        print(f'Client received size of next message: "{incoming_payload_length}"')
+        self.socket.send(CONFIRMATION_CODE.encode())
+        payload = self.socket.recv(incoming_payload_length).decode()
+        return payload
+
+# TODO: _receive_data and send_data_attempt from Server and Client sockets has a lot of overlap. Probably best fitted in a common library.
