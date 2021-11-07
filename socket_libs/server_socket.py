@@ -1,7 +1,7 @@
 import os
 import socket
 from dotenv import load_dotenv
-from lib.utils import decode_and_remove_padding, encode_and_apply_padding
+from lib.comms_protocol import CommsProtocolHandler
 
 
 load_dotenv()
@@ -39,34 +39,19 @@ class ServerSocket:
     def _handle_incoming_data(self):  # TODO: Logical operation ServerSocker._handle_incoming_data is not accurate.
         handler_s, client_addr = self.handler_sockets[0]  # Maybe not a great idea to have it as a list.
         # TODO: Infinite loop here!
-        data = ServerSocket._receive_data(handler_s)
+        data = ServerSocket._receive_data_attempt(handler_s)
         print(f'Server received message: "{data}"')
         # Ending connection.
-        ServerSocket._send_data(handler_s, 'Roger. We heard you loud and clear. Server handler out!')
+        ServerSocket._send_data_attempt(handler_s, 'Roger. We heard you loud and clear. Server handler out!')
         handler_s.close()
 
     @staticmethod
-    def _receive_confirmation(handler_socket):
-        confirmation = handler_socket.recv(len(CONFIRMATION_CODE)).decode()
-        return True if confirmation == CONFIRMATION_CODE else False
-
-    @staticmethod
-    def _receive_data(handler_socket):
-        incoming_payload_length = decode_and_remove_padding(handler_socket.recv(PADDED_MESSAGE_SIZE))
-        print(f'Server received size of next message: "{incoming_payload_length}"')
-        handler_socket.send(CONFIRMATION_CODE.encode())
-        payload = handler_socket.recv(incoming_payload_length).decode()
+    def _receive_data_attempt(handler_socket):
+        # TODO: Try/except block + Handle error cases... dropped signal, collisions, reconfirm, etc.
+        payload = CommsProtocolHandler.receive_data(handler_socket)
         return payload
 
     @staticmethod
-    def _send_data(handler_socket, payload):
-        outgoing_payload_length = len(payload) + 3  # Accounts for b'' characters that will also be amended.
-        handler_socket.send(encode_and_apply_padding(outgoing_payload_length, PADDED_MESSAGE_SIZE))
-        confirmation = ServerSocket._receive_confirmation(handler_socket)  # TODO: Handle error cases... dropped signal, collisions, reconfirm, etc.
-        if confirmation:
-            handler_socket.send(payload.encode())
-        else:
-            # TODO: Handle error cases... dropped signal, collisions, reconfirm, etc.
-            pass
-
-# TODO: _receive_data and _send_data from Server and Client sockets has a lot of overlap. Probably best fitted in a common library.
+    def _send_data_attempt(handler_socket, payload):
+        # TODO: Try/except block + Handle error cases... dropped signal, collisions, reconfirm, etc.
+        CommsProtocolHandler.send_data(handler_socket, payload)
