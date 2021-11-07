@@ -41,5 +41,5 @@ class ServerSocket:
             handler_s.send(b'OK')  # TODO: Cleaner encoding.
             data = handler_s.recv(incoming_payload_size).decode()
             print(f'Server received message from client {client_addr[0]}:{client_addr[1]}: "{data}"')
-            handler_s.send(b'We heard you loud and clear. Server handler out!')  # TODO: Cleaner encoding.
-        # # handler_s.close()  # Might be problematic closing prematurely?
+            handler_s.send(b'Roger. We heard you loud and clear. Server handler out!')  # TODO: Cleaner encoding.
+            handler_s.close()
