@@ -27,5 +27,8 @@ class ClientSocket:
 
     def receive_data_attempt(self):
         # TODO: Try/except block + Handle error cases... dropped signal, collisions, reconfirm, etc.
-        data = CommsProtocolHandler.receive_data(self.socket)
+        data = CommsProtocolHandler.receive_data(self.socket, 'Client')
         print(f'Client received message: {data}')
+
+    def close(self):
+        self.socket.close()
