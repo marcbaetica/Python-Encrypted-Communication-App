@@ -20,7 +20,7 @@ class ServerSocket:
         self.max_connections = max_connections
         self.socket = socket.socket(SOCKET_FAMILY, SOCKET_TYPE)
         self.handler_sockets = []
-        self._bind_to_host(self.ip_address)
+        self._bind_to_host(self.ip_address)  # TODO: socket.gethostname() to broadcast each others' ip
         self._set_max_connect_requests(self.max_connections)
         self.handler_sockets.append(self._accept_connection())  # TODO: Notify client has established socket connection.
         self._handle_incoming_data()

@@ -1,0 +1,11 @@
+- The server app (server socket) is always running. This allows other parties to connect to it.
+- When started, the server will log on the UI/console its ip address and port to the user so clients know where to connect to.
+- Once a client party establishes a connection, the server socket creates a handler socket (default python socket behavior).
+Once the connection is established, the chat box will start on each computer.
+- The chat will stay open until the connection is explicitly closed. Both parties can send/receive messages in whatever order they choose.
+- The connection closes when either party types a keyword. Currently, this keyword is set to 'bye'.
+Doing so, the socket will close, thus sending an empty byte stream to the other party (also python socket behavior).
+Receiving this, the other party's socket will also close.
+
+- UI vs console?
+- Set port and socket.gethostname() on each app?
