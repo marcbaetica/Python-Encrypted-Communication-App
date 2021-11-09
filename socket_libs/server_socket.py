@@ -10,7 +10,7 @@ SOCKET_FAMILY = eval(os.getenv('SOCKET_FAMILY'))
 SOCKET_TYPE = eval(os.getenv('SOCKET_TYPE'))
 SOCKET_PORT = int(os.getenv('SOCKET_PORT'))
 PADDED_MESSAGE_SIZE = int(os.getenv('PADDED_MESSAGE_SIZE'))
-CONFIRMATION_CODE = os.getenv('CONFIRMATION_CODE')
+EXIT_CODE = os.getenv('EXIT_CODE')
 
 
 class ServerSocket:
@@ -36,31 +36,20 @@ class ServerSocket:
               f' Max incoming connections set to {self.max_connections}.')
         return self.socket.accept()
 
-    def _handle_incoming_data(self):  # TODO: Logical operation ServerSocker._handle_incoming_data is not accurate.
-        handler_s, client_addr = self.handler_sockets[0]  # Maybe not a great idea to have it as a list.
+    def _handle_incoming_data(self):
+        handler_socket, client_addr = self.handler_sockets[0]  # Maybe not a great idea to have it as a list.
+        # TODO: toggle between send / receive.
         while True:
-            data = ServerSocket._receive_data_attempt(handler_s)
-            if data == b'':
-                print(f'The client has closed the connection. Closing socket from our end as well.')
-                handler_s.close()
+            data_received = CommsProtocolHandler.receive_data_attempt(handler_socket, 'Server')
+            if not CommsProtocolHandler.is_other_party_socket_closed(data_received, handler_socket.getpeername(), 'Server'):
+                print(f'[Server] Received message: {data_received}')
+            else:
+                handler_socket.close()
                 break
-            print(f'Server received message: "{data}"')
-            reply_msg = input('[Server] Data to send ("bye" to close connection): ')
-            if reply_msg == 'bye':
-                print(f'Closing connection to {client_addr[0]}:{client_addr[1]}.')
-            self.reply(handler_s, reply_msg)
-
-    @staticmethod
-    def reply(handler_s, message):
-        ServerSocket._send_data_attempt(handler_s, message)
-
-    @staticmethod
-    def _receive_data_attempt(handler_socket):
-        # TODO: Try/except block + Handle error cases... dropped signal, collisions, reconfirm, etc.
-        payload = CommsProtocolHandler.receive_data(handler_socket, 'Server')
-        return payload
-
-    @staticmethod
-    def _send_data_attempt(handler_socket, payload):
-        # TODO: Try/except block + Handle error cases... dropped signal, collisions, reconfirm, etc.
-        CommsProtocolHandler.send_data(handler_socket, payload)
+            data_to_send = input(f'[Server] Data to send ({EXIT_CODE} to close connection): ')
+            if not CommsProtocolHandler.is_close_socket_attempt(data_to_send, handler_socket.getpeername(), 'Server'):
+                print(handler_socket)
+                CommsProtocolHandler.send_data_attempt(handler_socket, data_to_send)
+            else:
+                handler_socket.close()
+                break
