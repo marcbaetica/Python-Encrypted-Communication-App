@@ -6,7 +6,8 @@ from lib.utils import decode_and_remove_padding, encode_and_apply_padding
 load_dotenv()
 
 PADDED_MESSAGE_SIZE = int(os.getenv('PADDED_MESSAGE_SIZE'))
-CONFIRMATION_CODE = os.getenv('CONFIRMATION_CODE')
+ACK_CODE = os.getenv('ACK_CODE')
+EXIT_CODE = os.getenv('EXIT_CODE')
 
 
 class CommsProtocolHandler:
@@ -42,11 +43,26 @@ class CommsProtocolHandler:
             return  # TODO: handle this scenario as well in both client and server sockets.
         incoming_payload_length = decode_and_remove_padding(header)
         print(f'{who} received size of next message: "{incoming_payload_length}"')
-        socket.send(CONFIRMATION_CODE.encode())
+        print(ACK_CODE)
+        socket.send(ACK_CODE.encode())
         payload = socket.recv(incoming_payload_length).decode()
         return payload
 
     @classmethod
     def _receive_confirmation(cls, socket):
-        confirmation = socket.recv(len(CONFIRMATION_CODE))
-        return True if confirmation == CONFIRMATION_CODE.encode() else False
+        confirmation = socket.recv(len(ACK_CODE))
+        return True if confirmation == ACK_CODE.encode() else False
+
+    @staticmethod
+    def is_close_socket_attempt(message, address):
+        if message == EXIT_CODE:
+            print(f'[Client] Closing connection to {address[0]}:{address[1]}.')
+            return True
+
+    @staticmethod
+    def is_other_party_socket_closed(message, address):
+        if message == b'':
+            print(f'[Client] The server has closed the connection on {address[0]}:{address[1]}.'
+                  f' Closing socket from our end as well.')
+            return True
+        return False

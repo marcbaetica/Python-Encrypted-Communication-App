@@ -40,19 +40,14 @@ class ServerSocket:
         handler_s, client_addr = self.handler_sockets[0]  # Maybe not a great idea to have it as a list.
         while True:
             data = ServerSocket._receive_data_attempt(handler_s)
-            if data == b'':  # TODO: figure out if it blocks if client socket waiting for input message.
-                print(f'The client has closed the connection.')
+            if data == b'':
+                print(f'The client has closed the connection. Closing socket from our end as well.')
                 handler_s.close()
-                # TODO: remove handler from sockets list?
-                break
-            if data == 'bye':  # Ending connection on purpose. # Todo: something clever or maybe a list if items
-                print('Client initiated closing sequence. Acknowledging and closing server socket as well.')
-                ServerSocket._send_data_attempt(handler_s, 'Roger. We heard you loud and clear. Server handler out!')
-                handler_s.close()
-                # TODO: remove handler from sockets list?
                 break
             print(f'Server received message: "{data}"')
-            reply_msg = input('[Server] Data to send: ')  # TODO: Handle if client closed connection.
+            reply_msg = input('[Server] Data to send ("bye" to close connection): ')
+            if reply_msg == 'bye':
+                print(f'Closing connection to {client_addr[0]}:{client_addr[1]}.')
             self.reply(handler_s, reply_msg)
 
     @staticmethod

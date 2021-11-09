@@ -1,7 +1,10 @@
 # Python-Encrypted-Communication-App
 
-### Communication protocol:
-///
+### Runbook:
+- Server machine: python3 server.py
+- Client machine: python3 client.py SERVER_IP
+
+NOTE: Both parties need to have the port open on their respective machines. The default port can be configured via .env file.
 
 ### Technical implementation details:
 - As a socket does not know the size of an incoming message, the other party will first forward a 10 byte character payload denoting this information.

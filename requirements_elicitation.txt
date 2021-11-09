@@ -4,7 +4,7 @@
 Once the connection is established, the chat box will start on each computer.
 - The chat will stay open until the connection is explicitly closed. Both parties can send/receive messages in whatever order they choose.
 - The connection closes when either party types a keyword. Currently, this keyword is set to 'bye'.
-Doing so, the socket will close, thus sending an empty byte stream to the other party (also python socket behavior).
+Doing so, the party's socket will close, thus sending an empty byte stream to the other party (also python socket behavior).
 Receiving this, the other party's socket will also close.
 
 - UI vs console?
