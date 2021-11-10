@@ -14,6 +14,7 @@ NOTE: Both parties need to have the port open on their respective machines. The 
 - Similarly, every package has to be acknowledged prior to one party being allowed to send another message. The ACK package is: ...TBD
 
 ### Unexpected error handling:
+- Messages being sent as an empty string should result in no action. This is to prevent the socket broadcasting a closed connection instead (default python socket behavior).
 - Message is not delivered. No ACK package has been received. A retry mechanism is in place.
 - Network connection is broken. No mechanism is in place other than client attempting to re-connect.
   This will create a new server socket handler. No handling exists server side.

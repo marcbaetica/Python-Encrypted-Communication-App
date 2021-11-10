@@ -23,12 +23,12 @@ class CommsProtocolHandler:
         except ConnectionResetError:
             print('[ERROR] Connection was unexpectedly severed by other party. Closing this connection as well.')
             socket.close()
-        # TODO: Handle error cases... dropped signal, collisions, reconfirm, etc.
+        # TODO: Handle error cases... collisions, reconfirm, etc.
         confirmation = cls._receive_confirmation(socket)
         if confirmation:
             socket.send(payload.encode())
         else:
-            # TODO: Handle error cases... dropped signal, collisions, reconfirm, etc.
+            # TODO: Handle error cases... collisions, reconfirm, etc.
             pass
 
     @staticmethod
@@ -37,13 +37,12 @@ class CommsProtocolHandler:
             raise ValueError(f'Parameter destination can only have values "Server" or "Client". Value received: {who}')
         try:
             header = socket.recv(PADDED_MESSAGE_SIZE)
-            # TODO: revisit this scenario. Empty string while blocking might mean something else.
             if header == b'':  # Client socket closed due to no incoming data.
                 return header
-        except ConnectionResetError as e:
+        except ConnectionResetError:
             print('[ERROR] Connection was unexpectedly severed by other party. Closing this connection as well.')
             socket.close()
-            return  # TODO: handle this scenario as well in both client and server sockets.
+            return
         incoming_payload_length = decode_and_remove_padding(header)
         print(f'{who} received size of next message: "{incoming_payload_length}"')
         print(ACK_CODE)  # TODO: handle this!
