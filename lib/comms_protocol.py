@@ -36,19 +36,23 @@ class CommsProtocolHandler:
         if who not in ['Server', 'Client']:
             raise ValueError(f'Parameter destination can only have values "Server" or "Client". Value received: {who}')
         try:
-            header = socket.recv(PADDED_MESSAGE_SIZE)
-            if header == b'':  # Client socket closed due to no incoming data.
-                return header
+            payload = socket.recv(PADDED_MESSAGE_SIZE)
+            if payload == b'':  # Client socket closed due to no incoming data.
+                return payload
         except ConnectionResetError:
             print('[ERROR] Connection was unexpectedly severed by other party. Closing this connection as well.')
             socket.close()
             return
-        incoming_payload_length = decode_and_remove_padding(header)
-        print(f'{who} received size of next message: "{incoming_payload_length}"')
-        print(ACK_CODE)  # TODO: handle this!
-        socket.send(ACK_CODE.encode())
-        payload = socket.recv(incoming_payload_length).decode()
-        return payload
+        print(payload)
+        if payload.decode() == ACK_CODE:
+            pass
+        else:
+            incoming_payload_length = decode_and_remove_padding(payload)
+            print(f'{who} received size of next message: "{incoming_payload_length}"')
+            print(ACK_CODE)  # TODO: handle this!
+            socket.send(ACK_CODE.encode())
+            payload = socket.recv(incoming_payload_length).decode()
+            return payload
 
     @classmethod
     def _receive_confirmation(cls, socket):

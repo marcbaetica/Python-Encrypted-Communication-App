@@ -1,7 +1,7 @@
 import os
 import socket
 from dotenv import load_dotenv
-from lib.comms_protocol import CommsProtocolHandler
+from lib.chat_handler import ChatHandler
 
 
 load_dotenv()
@@ -38,26 +38,4 @@ class ServerSocket:
 
     def _handle_incoming_data(self):
         handler_socket, client_addr = self.handler_sockets[0]  # Maybe not a great idea to have it as a list.
-        # TODO: toggle between send / receive.
-        while True:
-            try:
-                data_received = CommsProtocolHandler.receive_data_attempt(handler_socket, 'Server')
-                if not CommsProtocolHandler.is_other_party_socket_closed(data_received, handler_socket.getpeername(), 'Server'):
-                    print(f'[Server] Received message: {data_received}')
-                else:
-                    handler_socket.close()
-                    break
-                data_to_send = ''
-                while data_to_send == '':  # Empty payloads are synonymous to connection closing.
-                    data_to_send = input(f'[Server] Data to send ({EXIT_CODE} to close connection): ')
-                if not CommsProtocolHandler.is_close_socket_attempt(data_to_send, handler_socket.getpeername(), 'Server'):
-                    print(handler_socket)
-                    CommsProtocolHandler.send_data_attempt(handler_socket, data_to_send)
-                else:
-                    handler_socket.close()
-                    break
-            except OSError as e:
-                # When socket has been terminated, all subsequent operations involving the object should simply break.
-                # Specific scenario logging has been accounted for.
-                # OSError: [WinError 10038] An operation was attempted on something that is not a socket
-                break
+        ChatHandler(handler_socket, 'Server').handle_chat()
