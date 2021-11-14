@@ -37,7 +37,7 @@ class CommsProtocolHandler:
         """Can receive:
          - nothing / blocked call -> idling means socket is still open and pending network buffer fill-in
          - instant empty bytes object (encoded message string) on all calls  -> other party socket has been closed
-         - incoming message size (padded) -> message is about to be send, pending confirmation
+         - incoming message size (padded) -> message is about to be sent, pending confirmation
          - message size confirmation -> confirms that message has been received, therefore waiting for the message
          - actual message
          - confirmation of message received -> without this the other party will retry to sent the message
