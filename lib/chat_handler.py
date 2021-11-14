@@ -2,17 +2,20 @@ import os
 import threading
 from dotenv import load_dotenv
 from lib.comms_protocol import CommsProtocolHandler
+from communication_protocols.comms_protocol_factory import comms_protocol_factory
 
 
 load_dotenv()
 
 EXIT_CODE = os.getenv('EXIT_CODE')
+COMMUNICATION_PROTOCOL_TYPE = 'Basic'  # Can also be 'Advanced'
 
 
 class ChatHandler:
     def __init__(self, socket, name):
         self.socket = socket
         self.name = name
+        self.comms_protocol = comms_protocol_factory(self.socket, COMMUNICATION_PROTOCOL_TYPE)
 
     def handle_chat(self):
         while True:

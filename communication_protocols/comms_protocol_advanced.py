@@ -37,8 +37,8 @@ class AdvancedCommsProtocol:
     def send_message_size_confirmation(self):
         self.socket.send(ACK_SIZE_CODE.encode())
 
-    def receive_message_size_confirmation(self):  # TODO: should be boolean?
-        return self.socket.recv(len(ACK_SIZE_CODE)).decode()
+    def is_message_size_confirmation_received(self):
+        return self.socket.recv(len(ACK_SIZE_CODE)).decode() == ACK_SIZE_CODE
 
     def send_message(self, message):
         self.socket.send(message.encode())
@@ -49,7 +49,7 @@ class AdvancedCommsProtocol:
     def send_message_confirmation(self):
         self.socket.send(ACK_MESSAGE_CODE.encode())
 
-    def receive_message_confirmation(self):  # TODO: should be boolean?
-        return self.socket.recv(len(ACK_MESSAGE_CODE)).decode()
+    def is_message_confirmation_received(self):
+        return self.socket.recv(len(ACK_MESSAGE_CODE)).decode() == ACK_MESSAGE_CODE
 
 # TODO: handle exit codes?
