@@ -34,4 +34,6 @@ class ChatHandler:
     def handle_receive_messages(self):
         while True:
             data_received = self.comms_protocol.receive_message_attempt()
+            # TODO: closing side results in:
+            #  ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host.
             print(f'[{self.name}] Received message: {data_received}')
