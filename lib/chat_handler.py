@@ -7,7 +7,7 @@ from communication_protocols.comms_protocol_factory import comms_protocol_factor
 load_dotenv()
 
 EXIT_CODE = os.getenv('EXIT_CODE')
-COMMUNICATION_PROTOCOL_TYPE = 'advanced'  # Can also be 'Advanced'
+COMMUNICATION_PROTOCOL_TYPE = 'simple'  # Supports 'simple' or 'advanced'.
 
 
 class ChatHandler:
@@ -32,5 +32,6 @@ class ChatHandler:
         self.socket.close()  # Empty payloads are synonymous to connection closing.
 
     def handle_receive_messages(self):
-        data_received = self.comms_protocol.receive_message_attempt()
-        print(f'[{self.name}] Received message: {data_received}')
+        while True:
+            data_received = self.comms_protocol.receive_message_attempt()
+            print(f'[{self.name}] Received message: {data_received}')
