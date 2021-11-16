@@ -32,24 +32,36 @@ class AdvancedCommsProtocol:
         self.socket.send(encode_and_apply_padding(len(message), PADDED_MESSAGE_SIZE))
 
     def receive_incoming_payload_size(self):
-        return decode_and_remove_padding(self.socket.recv(PADDED_MESSAGE_SIZE))
+        encoded_padded_message_size = self.socket.recv(PADDED_MESSAGE_SIZE)
+        if encoded_padded_message_size == b'':
+            raise ConnectionError('The connection has been closed by other party. Closing socket from our side as well.')
+        return decode_and_remove_padding(encoded_padded_message_size)
 
     def send_message_size_confirmation(self):
         self.socket.send(ACK_SIZE_CODE.encode())
 
     def is_message_size_confirmation_received(self):
-        return self.socket.recv(len(ACK_SIZE_CODE)).decode() == ACK_SIZE_CODE
+        message_size_confirmation = self.socket.recv(len(ACK_SIZE_CODE)).decode()
+        if len(message_size_confirmation) == 0:
+            raise ConnectionError('The connection has been closed by other party. Closing socket from our side as well.')
+        return message_size_confirmation == ACK_SIZE_CODE
 
     def send_message(self, message):
         self.socket.send(message.encode())
 
     def receive_message(self, message_length):
-        return self.socket.recv(message_length).decode()
+        message = self.socket.recv(message_length).decode()
+        if len(message) == 0:
+            raise ConnectionError('The connection has been closed by other party. Closing socket from our side as well.')
+        return message
 
     def send_message_confirmation(self):
         self.socket.send(ACK_MESSAGE_CODE.encode())
 
     def is_message_confirmation_received(self):
-        return self.socket.recv(len(ACK_MESSAGE_CODE)).decode() == ACK_MESSAGE_CODE
+        message_received_confirmation = self.socket.recv(len(ACK_MESSAGE_CODE)).decode()
+        if len(message_received_confirmation) == 0:
+            raise ConnectionError('The connection has been closed by other party. Closing socket from our side as well.')
+        return message_received_confirmation == ACK_MESSAGE_CODE
 
-# TODO: handle exit codes?
+    # TODO: handle exit codes?
