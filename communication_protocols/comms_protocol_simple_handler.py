@@ -1,4 +1,4 @@
-from communication_protocols.comms_protocol_basic import BasicCommsProtocol
+from communication_protocols.comms_protocol_basic import SimpleCommsProtocolHandler
 
 
 class BasicCommsProtocolHandler:

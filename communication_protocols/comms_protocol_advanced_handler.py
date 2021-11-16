@@ -1,8 +1,9 @@
 from time import sleep
 from communication_protocols.comms_protocol_advanced import AdvancedCommsProtocol
+from communication_protocols.comms_protocol_base_class import BaseCommsProtocolHandler
 
 
-class AdvancedCommsProtocolHandler:
+class AdvancedCommsProtocolHandler(BaseCommsProtocolHandler):
     def __init__(self, socket):
         self.socket = socket
         self.comms_protocol = AdvancedCommsProtocol(socket)
