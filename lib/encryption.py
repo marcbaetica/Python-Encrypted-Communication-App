@@ -46,8 +46,15 @@ class Encryption:
 
 
 class EncryptionTests(unittest.TestCase):
-    def test_hashing_has_expected_char_size(self):
-        pass  # TODO: Fill this in at a later time.
+    def test_encryption_has_expected_char_size(self):
+        messages = ['aaa', '111', '   ']
+        symmetric_key = Encryption.generate_symmetric_key()
+        for message in messages:
+            encrypted_message = Encryption.encrypt_message(message.encode(), symmetric_key, 'symmetric')
+            self.assertEqual(len(encrypted_message), 100)
+        longer_messages = '1234567890123456'
+        encrypted_message = Encryption.encrypt_message(longer_messages.encode(), symmetric_key, 'symmetric')
+        self.assertEqual(len(encrypted_message), 120)  # Transition from 15 to 16 chars increases len(encr) to +20 char.
 
     def test_symmetric_encrypting_decrypting_output(self):
         messages = ['aaa', '111', '   ']
