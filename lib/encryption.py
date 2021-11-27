@@ -1,5 +1,5 @@
-import unittest
 import rsa
+import unittest
 from hashlib import md5, sha1, sha224, sha256, sha384, sha512, blake2b, blake2s, sha3_224, sha3_256, sha3_384, sha3_512, shake_128, shake_256
 from cryptography.fernet import Fernet
 
@@ -46,30 +46,28 @@ class Encryption:
 
 
 class EncryptionTests(unittest.TestCase):
+    message_permutations = ['aaa', '111', '   ']
+    symmetric_key = Encryption.generate_symmetric_key()
+    public_key, private_key = Encryption.generate_asymmetric_keys()
+
     def test_encryption_has_expected_char_size(self):
-        messages = ['aaa', '111', '   ']
-        symmetric_key = Encryption.generate_symmetric_key()
-        for message in messages:
-            encrypted_message = Encryption.encrypt_message(message.encode(), symmetric_key, 'symmetric')
+        for message in self.message_permutations:
+            encrypted_message = Encryption.encrypt_message(message.encode(), self.symmetric_key, 'symmetric')
             self.assertEqual(len(encrypted_message), 100)
         longer_messages = '1234567890123456'
-        encrypted_message = Encryption.encrypt_message(longer_messages.encode(), symmetric_key, 'symmetric')
+        encrypted_message = Encryption.encrypt_message(longer_messages.encode(), self.symmetric_key, 'symmetric')
         self.assertEqual(len(encrypted_message), 120)  # Transition from 15 to 16 chars increases len(encr) to +20 char.
 
     def test_symmetric_encrypting_decrypting_output(self):
-        messages = ['aaa', '111', '   ']
-        symmetric_key = Encryption.generate_symmetric_key()
-        for message in messages:
-            encrypted_message = Encryption.encrypt_message(message.encode(), symmetric_key, 'symmetric')
-            decrypted_message = Encryption.decrypt_message(encrypted_message, symmetric_key, 'symmetric')
+        for message in self.message_permutations:
+            encrypted_message = Encryption.encrypt_message(message.encode(), self.symmetric_key, 'symmetric')
+            decrypted_message = Encryption.decrypt_message(encrypted_message, self.symmetric_key, 'symmetric')
             self.assertEqual(message, decrypted_message.decode())
 
     def test_asymmetric_encrypting_decrypting_output(self):
-        messages = ['aaa', '111', '   ']
-        public_key, private_key = Encryption.generate_asymmetric_keys()
-        for message in messages:
-            encrypted_message = Encryption.encrypt_message(message.encode(), public_key, 'asymmetric')
-            decrypted_message = Encryption.decrypt_message(encrypted_message, private_key, 'asymmetric')
+        for message in self.message_permutations:
+            encrypted_message = Encryption.encrypt_message(message.encode(), self.public_key, 'asymmetric')
+            decrypted_message = Encryption.decrypt_message(encrypted_message, self.private_key, 'asymmetric')
             self.assertEqual(message, decrypted_message.decode())
 
 
