@@ -46,17 +46,17 @@ class Encryption:
 
 
 class EncryptionTests(unittest.TestCase):
-    message_permutations = ['aaa', '111', '   ']
+    message_permutations = ['aaa', '111', '   ', '1234567890123456']
     symmetric_key = Encryption.generate_symmetric_key()
     public_key, private_key = Encryption.generate_asymmetric_keys()
 
-    def test_encryption_has_expected_char_size(self):
+    def test_symmetric_encryption_has_expected_char_size(self):
         for message in self.message_permutations:
             encrypted_message = Encryption.encrypt_message(message.encode(), self.symmetric_key, 'symmetric')
-            self.assertEqual(len(encrypted_message), 100)
-        longer_messages = '1234567890123456'
-        encrypted_message = Encryption.encrypt_message(longer_messages.encode(), self.symmetric_key, 'symmetric')
-        self.assertEqual(len(encrypted_message), 120)  # Transition from 15 to 16 chars increases len(encr) to +20 char.
+            if len(message) < 16:  # Transition from 15 to 16 chars increases len(cypher) to +20 chars.
+                self.assertEqual(len(encrypted_message), 100)
+            else:
+                self.assertEqual(len(encrypted_message), 120)
 
     def test_symmetric_encrypting_decrypting_output(self):
         for message in self.message_permutations:
